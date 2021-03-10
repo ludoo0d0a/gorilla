@@ -1,13 +1,9 @@
 
 
-gorilla = function(opts) {
+gorilla = function() {
     'use strict';
 
-    opts = {
-        delay: 1000,
-        clicks: [],
-        ...opts
-    }
+    let opts = {}
 
     function setCookie(name,value,days) {
         var expires = "";
@@ -71,6 +67,26 @@ gorilla = function(opts) {
         }
         return false;
     }
+    function selectIf(q, val, text, filter){
+        var el = query(q, filter);
+        if (el) {
+            if (text!=null){
+                const options = el.selectedOptions
+                for(var i=0; i<options.length; i++) {
+                    let opt = options[i]
+                    if (opt.text==text || opt.value==text){
+                        el.selectedIndex=i
+                        return true;
+                    }
+                }
+            }else if (val!=null){
+                el.selectedIndex=val
+            }
+
+            return true;
+        }
+        return false;
+    }
     function checkIf(q, filter){
         var el = query(q, filter);
         if (el) {
@@ -129,15 +145,39 @@ gorilla = function(opts) {
             });
         }
     }
+    function _on(_opts){
+        opts = {
+            delay: 1000,
+            clicks: [],
+            ..._opts
+        }
+        run(opts);
+    }
 
-    setTimeout(_main, opts.delay || 500);
-    if (opts.interval && opts.interval>0){
-        setInterval(_main, opts.interval);
+    function run(){
+       setTimeout(_main, opts.delay || 500);
+        if (opts.interval && opts.interval>0){
+            setInterval(_main, opts.interval);
+        }
+    }
+
+    return {
+        setCookie,
+        getCookie,
+        query,
+        queryAll,
+        clickIf,
+        checkAllIf,
+        checkIf,
+        setValueIf,
+        selectIf,
+        on: _on
     }
 
 }();
 window.gorilla = gorilla;
 
+/*
 gorilla.on({
     clicks: [
         "#container_page .k-element-animation a"
@@ -148,4 +188,4 @@ gorilla.on({
     interval: 5000,
     delay: 1000
 })
-
+*/
