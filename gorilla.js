@@ -3,6 +3,18 @@
 gorilla = function() {
     'use strict';
 
+    const ACTIONS = {
+        setCookie,
+        getCookie,
+        query,
+        queryAll,
+        clickIf,
+        checkAllIf,
+        checkIf,
+        setValueIf,
+        selectIf
+     }
+
     let opts = {}
 
     function setCookie(name,value,days) {
@@ -114,6 +126,15 @@ gorilla = function() {
         }
         return false;
     }
+
+    function execAction(action, q, filter){
+        if (ACTIONS[action]){ 
+            return ACTIONS[action];
+        }else{
+            return false;
+        }
+    }
+
     // function filter(el){
     //     if (el){
     //         console.log('>>>>'+el.href)
@@ -144,14 +165,30 @@ gorilla = function() {
                 let checked = checkIf(q, filter);
             });
         }
+        if (opts.actions){
+            opts.actions.forEach(action => {
+                let executed = execAction(action, q /* , filter */ );
+            });
+        }
+    }
+    function checkUrl(urls){
+        const urlWindow = window.location.href;
+        for (const url of urls){
+            const re = new RegExp(url.replaceAll('*', '\w+'))
+            if (re.test(urlWindow)){
+                return true;
+            }
+        }
+        return false;
     }
     function _on(_opts){
         opts = {
             delay: 1000,
-            clicks: [],
             ..._opts
         }
-        run(opts);
+        if (checkUrl(opts.urls)){
+            run(opts);
+        }
     }
 
     function run(){
@@ -162,15 +199,7 @@ gorilla = function() {
     }
 
     return {
-        setCookie,
-        getCookie,
-        query,
-        queryAll,
-        clickIf,
-        checkAllIf,
-        checkIf,
-        setValueIf,
-        selectIf,
+        ...ACTIONS,
         on: _on
     }
 
@@ -189,3 +218,19 @@ gorilla.on({
     delay: 1000
 })
 */
+
+
+/*
+    gorilla.on({
+        urls: [
+            'https://contenus.elle.fr/*',
+            'https://www.form.elle.fr/*',
+            'https://ellefrance.qualifioapp.com/*'
+        ],
+        actions: [
+            {click: "#skip"},
+            {check: ".flat_checkbox > input.champTexte[required='required']"}
+        ],
+        delay : 300
+   ));
+   */
