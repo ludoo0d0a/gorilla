@@ -46,7 +46,7 @@ gorilla = function() {
         var el = document.querySelector(q);
         el = applyFilter(el, filter);
         if (el) {
-            return q;
+            return el;
         }
         return false;
     }
