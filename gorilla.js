@@ -138,7 +138,7 @@ gorilla = function() {
     function execAction(action){
         for (const [key, q] of Object.entries(action)) { 
             const fn = ACTIONS[key] 
-            if (fn && typeof fn === 'prototype' ){ 
+            if (fn && typeof fn === 'function' ){ 
                 return fn.call(me, q);
             }
         }
