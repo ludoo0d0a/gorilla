@@ -1,4 +1,11 @@
 
+//
+// Gorilla core framework 
+// Can be used as helper for Tampermonkey, and void jQuery conflicts hell
+// 
+// Author : LudoO
+// Version: 0.2
+// 
 
 gorilla = function() {
     'use strict';
