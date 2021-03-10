@@ -3,6 +3,7 @@
 gorilla = function() {
     'use strict';
 
+    const me = this;
     const ACTIONS = {
         setCookie,
         getCookie,
@@ -130,8 +131,8 @@ gorilla = function() {
     function execAction(action){
         for (const [key, q] of Object.entries(action)) { 
             const fn = ACTIONS[key] 
-            if (fn /* && typeof fn == 'prototype' */ ){ 
-                return fn.call(q);
+            if (fn && typeof fn === 'prototype' ){ 
+                return fn.call(me, q);
             }
         }
         return false;
