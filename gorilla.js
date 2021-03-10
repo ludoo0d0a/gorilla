@@ -127,12 +127,14 @@ gorilla = function() {
         return false;
     }
 
-    function execAction(action, q, filter){
-        if (ACTIONS[action]){ 
-            return ACTIONS[action];
-        }else{
-            return false;
+    function execAction(action){
+        for (const [key, q] of Object.entries(action)) { 
+            const fn = ACTIONS[key] 
+            if (fn /* && typeof fn == 'prototype' */ ){ 
+                return fn.call(q);
+            }
         }
+        return false;
     }
 
     // function filter(el){
@@ -167,7 +169,7 @@ gorilla = function() {
         }
         if (opts.actions){
             opts.actions.forEach(action => {
-                let executed = execAction(action, q /* , filter */ );
+                let executed = execAction(action /* , filter */ );
             });
         }
     }
