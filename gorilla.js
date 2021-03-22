@@ -275,14 +275,14 @@ gorilla.on({
 /*
     gorilla.on({
         urls: [
-            'https://contenus.elle.fr/*',
-            'https://www.form.elle.fr/*',
-            'https://ellefrance.qualifioapp.com/*'
+            'https://game.mydomain.com/*',
+            'https://www.form.mydomain.com/*'
         ],
         actions: [
-            {click: "#skip"},
-            {check: ".flat_checkbox > input.champTexte[required='required']"}
+            {action:'clickIf', q:"#skip"},
+            {action:'checkIf', q:".flat_checkbox > input.champTexte[required='required']"}
         ],
-        delay : 300
+        delay : 300,
+        interval: 800
    ));
    */
