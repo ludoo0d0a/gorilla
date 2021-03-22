@@ -4,14 +4,14 @@
 // Can be used as helper for Tampermonkey, and void jQuery conflicts hell
 // 
 // Author : LudoO
-// Version: 0.2
+// Version: 0.3
 // 
 
 gorilla = function() {
     'use strict';
 
     const me = this;
-    const ACTIONS = {
+    const FN_ACTIONS = {
         setCookie,
         getCookie,
         query,
@@ -22,10 +22,14 @@ gorilla = function() {
         setValueIf,
         selectIf
      }
+     const FN_ACTIONS_PARAMS = {
+        setText
+     }
 
     let opts = {}
 
-    function setCookie(name,value,days) {
+    function setCookie(opts) {
+        const {name,value,days} = opts || {};
         var expires = "";
         if (days) {
             var date = new Date();
@@ -34,7 +38,8 @@ gorilla = function() {
         }
         document.cookie = name + "=" + (value || "")  + expires + "; path=/";
     }
-    function getCookie(name) {
+    function getCookie(opts) {
+        const {name} = opts || {};
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
         for(var i=0;i < ca.length;i++) {
@@ -62,7 +67,8 @@ gorilla = function() {
             return el;
         }
     }
-    function query(q, filter){
+    function query(opts){
+        const {q, filter} = opts || {};
         var el = document.querySelector(q);
         el = applyFilter(el, filter);
         if (el) {
@@ -70,7 +76,8 @@ gorilla = function() {
         }
         return false;
     }
-    function queryAll(q, filter){
+    function queryAll(opts){
+        const {q, filter} = opts || {};
         var els = document.querySelectorAll(q);
         el = applyFilter(el, filter);
         if (els.length>0) {
@@ -79,16 +86,17 @@ gorilla = function() {
         return false;
     }
     
-    function clickIf(q, filter){
-        var el = query(q, filter);
+    function clickIf(opts){
+        var el = query(ops);
         if (el) {
             el.click()
             return true;
         }
         return false;
     }
-    function selectIf(q, val, text, filter){
-        var el = query(q, filter);
+    function selectIf(opts){
+        const {val, text} = opts || {};
+        var el = query(ops);
         if (el) {
             if (text!=null){
                 const options = el.selectedOptions
@@ -107,27 +115,43 @@ gorilla = function() {
         }
         return false;
     }
-    function checkIf(q, filter){
-        var el = query(q, filter);
+    function checkIf(opts){
+        var el = query(opts);
         if (el) {
             el.checked=true
             return true;
         }
         return false;
     }
-    function checkAllIf(q, filter){
-        var els = queryAll(q);
-        if (els) {
-            for (const el of els) {
-                let _el = applyFilter(el, filter);
+    function checkAllIf(opts){
+        const {filter, index} = opts || {};
+        var els = queryAll(opts);
+        if (els && els.length>0) {
+            if (index && index>=0){
+                // single
+                let _el = els[index]
                 if (_el){
                     _el.checked=true
+                }
+            }else{
+                // multiple
+                for (const el of els) {
+                    let _el = applyFilter(el, filter);
+                    if (_el){
+                        _el.checked=true
+                    }
                 }
             }
         }
     }
-    function setValueIf(q, text){
-        var el = query(q, filter);
+
+    function setText(q, text){
+        return setValueIf({q, text})
+    }
+
+    function setValueIf(opts){
+        const {text} = opts || {};
+        var el = query(opts);
         if (el) {
             el.value=text
             return true;
@@ -135,13 +159,22 @@ gorilla = function() {
         return false;
     }
 
-    function execAction(action){
-        for (const [key, q] of Object.entries(action)) { 
-            const fn = ACTIONS[key] 
-            if (fn && typeof fn === 'function' ){ 
-                return fn.call(me, q);
+    function execAction(recordAction){
+        const {action, delay} = recordAction;
+        const fn = FN_ACTIONS[action] 
+        if (fn && typeof fn === 'function' ){ 
+            if (delay){
+                setTimeout(function(){
+                    fn.call(me, recordAction)
+                }, delay);
+            }else{
+                return fn.call(me, recordAction);
             }
         }
+
+        // for (const [key, q] of Object.entries(recordAction)) { 
+            
+        // }
         return false;
     }
 
@@ -176,8 +209,16 @@ gorilla = function() {
             });
         }
         if (opts.actions){
-            opts.actions.forEach(action => {
-                let executed = execAction(action /* , filter */ );
+            const globalStopIfTrue = !!opts.stopIfTrue;
+            opts.actions.every(recordAction => {
+                //TODO Iterate with delay
+                let executed = execAction(recordAction /* , filter */ );
+                if (executed && recordAction.stopIfTrue == globalStopIfTrue){
+                    //stop
+                    console.log('stop on '+JSON.stringify(recordAction) )
+                    return false;
+                }
+                return true;
             });
         }
     }
@@ -209,7 +250,8 @@ gorilla = function() {
     }
 
     return {
-        ...ACTIONS,
+        ...FN_ACTIONS,
+        ...FN_ACTIONS_PARAMS,
         on: _on
     }
 
