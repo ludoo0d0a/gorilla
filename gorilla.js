@@ -225,7 +225,7 @@ gorilla = function() {
     function checkUrl(urls){
         const urlWindow = window.location.href;
         for (const url of urls){
-            const re = new RegExp(url.replaceAll('*', '\\w+'))
+            const re = new RegExp(url.replaceAll('*', '.+'))
             if (re.test(urlWindow)){
                 return true;
             }
