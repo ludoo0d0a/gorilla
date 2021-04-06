@@ -87,7 +87,7 @@ gorilla = function() {
     }
     
     function clickIf(opts){
-        var el = query(ops);
+        var el = query(opts);
         if (el) {
             el.click()
             return true;
@@ -96,7 +96,7 @@ gorilla = function() {
     }
     function selectIf(opts){
         const {val, text} = opts || {};
-        var el = query(ops);
+        var el = query(opts);
         if (el) {
             if (text!=null){
                 const options = el.selectedOptions
