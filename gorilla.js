@@ -28,6 +28,13 @@ gorilla = function() {
 
     let opts = {}
 
+    function log(opts, text, r){
+        if (!(opts && opts.debug)){
+            return;
+        }
+        console.log(text, r)
+    }
+
     function setCookie(opts) {
         const {name,value,days} = opts || {};
         var expires = "";
@@ -72,6 +79,7 @@ gorilla = function() {
         var el = document.querySelector(q);
         el = applyFilter(el, filter);
         if (el) {
+            log(opts, 'queryAll', el)
             return el;
         }
         return false;
@@ -81,6 +89,7 @@ gorilla = function() {
         var els = document.querySelectorAll(q);
         el = applyFilter(el, filter);
         if (els.length>0) {
+            log(opts, 'queryAll='+els.length, els)
             return els;
         }
         return false;
@@ -90,6 +99,7 @@ gorilla = function() {
         var el = query(opts);
         if (el) {
             el.click()
+            log(opts, 'click', el)
             return true;
         }
         return false;
@@ -104,11 +114,13 @@ gorilla = function() {
                     let opt = options[i]
                     if (opt.text==text || opt.value==text){
                         el.selectedIndex=i
+                        log(opts, 'selectedIndex='+i, el)
                         return true;
                     }
                 }
             }else if (val!=null){
                 el.selectedIndex=val
+                log(opts, 'selectedIndex(val)='+val, el)
             }
 
             return true;
@@ -119,6 +131,7 @@ gorilla = function() {
         var el = query(opts);
         if (el) {
             el.checked=true
+            log(opts, 'check', el)
             return true;
         }
         return false;
@@ -132,6 +145,7 @@ gorilla = function() {
                 let _el = els[index]
                 if (_el){
                     _el.checked=true
+                    log(opts, 'checkAllIf.checked', _el)
                 }
             }else{
                 // multiple
@@ -139,6 +153,7 @@ gorilla = function() {
                     let _el = applyFilter(el, filter);
                     if (_el){
                         _el.checked=true
+                        log(opts, 'checkAllIf.multiple.checked', _el)
                     }
                 }
             }
@@ -154,6 +169,7 @@ gorilla = function() {
         var el = query(opts);
         if (el) {
             el.value=text
+            log(opts, 'value='+text, el)
             return true;
         }
         return false;
@@ -165,9 +181,11 @@ gorilla = function() {
         if (fn && typeof fn === 'function' ){ 
             if (delay){
                 setTimeout(function(){
+                    log(opts, 'call delay '+delay+': '+recordAction, fn)
                     fn.call(me, recordAction)
                 }, delay);
             }else{
+                log(opts, 'call: '+recordAction, fn)
                 return fn.call(me, recordAction);
             }
         }
@@ -222,11 +240,12 @@ gorilla = function() {
             });
         }
     }
-    function checkUrl(urls){
+    function checkUrl(opts){
         const urlWindow = window.location.href;
-        for (const url of urls){
+        for (const url of opts.urls){
             const re = new RegExp(url.replaceAll('*', '.+'))
             if (re.test(urlWindow)){
+                log(opts, 'checkUrl='+urlWindow)
                 return true;
             }
         }
@@ -235,9 +254,10 @@ gorilla = function() {
     function _on(_opts){
         opts = {
             delay: 1000,
+            debug: false,
             ..._opts
         }
-        if (checkUrl(opts.urls)){
+        if (checkUrl(opts)){
             run(opts);
         }
     }
@@ -274,6 +294,7 @@ gorilla.on({
 
 /*
     gorilla.on({
+        debug: true,
         urls: [
             'https://game.mydomain.com/*',
             'https://www.form.mydomain.com/*'
